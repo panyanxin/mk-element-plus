@@ -13,7 +13,7 @@ app.use(router)
 // 全局注册图标 牺牲一点性能
 // el-icon-xxx
 for (let i in Icons) {
-  console.log(toLine(i));
+  // console.log(toLine(i));
   // 注册全部组件
   app.component(`el-icon-${toLine(i)}`, (Icons as any)[i])
 }
