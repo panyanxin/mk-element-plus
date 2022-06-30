@@ -12,4 +12,7 @@
 @import "./styles/element-ui.scss";
 @import "./styles/base.scss";
 
+.notification-popper-class {
+  padding: 0 !important;
+}
 </style>
