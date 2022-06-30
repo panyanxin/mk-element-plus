@@ -3,7 +3,7 @@
 </template>
 
 <script lang='ts' setup>
-import mChooseArea from './../../components/chooseArea/src/index.vue'
+// import mChooseArea from './../../components/chooseArea/src/index.vue'
 
 let changeArea = (val: any) => {
   console.log(val)
