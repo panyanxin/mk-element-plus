@@ -90,6 +90,8 @@ let props = defineProps({
 <style scoped>
 svg {
   margin-right: 4px;
+  width: 1em;
+  height: 1em;
 }
 .el-menu-vertical-demo:not(.el-menu--collapse) {
   width: 200px;
