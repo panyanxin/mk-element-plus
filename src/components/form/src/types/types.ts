@@ -21,11 +21,13 @@ export interface FormOptions {
   // 表单项的占位符
   placeholder?: string,
   // 表单元素特有的属性
-  attrs: {
+  attrs?: {
     // css样式
     style?: CSSProperties,
     clearable?: boolean,
     showPassword?: boolean,
     disabled?: boolean,
-  }
+  },
+  // 表单项的子元素
+  children?: FormOptions[],
 }
