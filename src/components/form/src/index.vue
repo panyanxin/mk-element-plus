@@ -125,6 +125,11 @@ let initForm = () => {
   }
 }
 
+// 表单验证方法
+let validate = () => {
+  return form.value!.validate
+}
+
 // 重置表单
 let resetFields = () => {
   // 重置element-plus的表单
@@ -137,11 +142,16 @@ let resetFields = () => {
   }
 }
 
+// 获取表单数据
+let getFormData = () => {
+  return model.value
+}
+
 // 分发方法
 defineExpose({
   resetFields,
-  // validate,
-  // getFormData
+  validate,
+  getFormData
 })
 
 onMounted(() => {
