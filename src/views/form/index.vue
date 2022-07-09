@@ -1,6 +1,7 @@
 <template>
   <div>
     <m-form 
+      ref="form"
       label-width="100px" 
       :options="formConfig"
       @on-change="handleChange"
@@ -19,7 +20,7 @@
       </template>
       <template #action="scope">
         <el-button type="primary" @click="submitForm(scope)">提交</el-button>
-        <el-button @click="resetForm(scope)">重置</el-button>
+        <el-button @click="resetForm">重置</el-button>
       </template>
     </m-form>
   </div>
@@ -29,12 +30,15 @@
 import { FormInstance, FormOptions } from '../../components/form/src/types/types';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import {formConfig} from './form.config.js'
+import { ref } from 'vue';
 
 
 interface Scope {
   form: FormInstance,
   model: any
 }
+
+let form = ref()
 
 let submitForm = (scope: Scope) => {
   scope.form.validate((valid) => {
@@ -47,8 +51,9 @@ let submitForm = (scope: Scope) => {
   })
 }
 
-let resetForm = (scope: Scope) => {
-  scope.form.resetFields()
+// 重置表单
+let resetForm = () => {
+  form.value.resetFields()
 }
 
 let handleRemove = (file: any, fileList: any) => {

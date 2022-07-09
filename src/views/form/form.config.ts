@@ -152,12 +152,26 @@ export const formConfig: FormOptions[] = [
       multiple: true,
       limit: 3
     },
-    // rules: [
-    //   {
-    //     required: true,
-    //     message: '图片不能为空',
-    //     trigger: 'blur'
-    //   }
-    // ],
+    rules: [
+      {
+        required: true,
+        message: '图片不能为空',
+        trigger: 'blur'
+      }
+    ],
   },
+  {
+    type: 'editor',
+    value: '123',
+    prop: 'desc',
+    label: '描述',
+    placeholder: '请输入描述',
+    rules: [
+      {
+        required: true,
+        message: '描述不能为空',
+        trigger: 'blur'
+      }
+    ]
+  }
 ]

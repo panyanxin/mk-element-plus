@@ -42,6 +42,7 @@
             <slot name="uploadTip"></slot>
           </template>
         </el-upload>
+        <div id="editor" v-else-if="item.type === 'editor'"></div>
       </el-form-item>
       <el-form-item
         v-if="item.children && item.children.length"
@@ -73,6 +74,7 @@
 <script setup lang="ts">
 import { PropType,ref, onMounted, watch, nextTick } from 'vue';
 import { FormInstance, FormOptions } from './types/types';
+import E from "wangeditor"
 
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -91,6 +93,7 @@ const props = defineProps({
 let model = ref<any>(null)
 let rules = ref<any>(null)
 let form = ref<FormInstance | null>()
+let edit = ref()
 
 // 初始化表单
 let initForm = () => {
@@ -100,11 +103,46 @@ let initForm = () => {
     props.options!.map((item: FormOptions) => {
       m[item.prop!] = item.value
       r[item.prop!] = item.rules
+      if (item.type === 'editor') {
+        // 初始化富文本
+        nextTick(() => {
+          if (document.getElementById('editor')) {
+            const editor = new E('#editor')
+            editor.config.placeholder = item.placeholder!
+            editor.create()
+            // 初始化富文本的内容
+            editor.txt.html(item.value)
+            editor.config.onchange = (newHtml: string) => {
+              model.value[item.prop!] = newHtml
+            }
+            edit.value = editor
+          }
+        })
+      }
     })
     model.value = cloneDeep(m)
     rules.value = cloneDeep(r)
   }
 }
+
+// 重置表单
+let resetFields = () => {
+  // 重置element-plus的表单
+  form.value!.resetFields()
+  // 重置富文本编辑器的内容
+    // 获取到富文本的配置项
+  if (props.options && props.options.length) {
+    let editorItem = props.options.find(item => item.type === 'editor')!
+    edit.value.txt.html(editorItem.value)
+  }
+}
+
+// 分发方法
+defineExpose({
+  resetFields,
+  // validate,
+  // getFormData
+})
 
 onMounted(() => {
   initForm()
