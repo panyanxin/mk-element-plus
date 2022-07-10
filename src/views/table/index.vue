@@ -1,6 +1,8 @@
 <template>
   <div>
     <m-table 
+      stripe
+      border
       :data="tableData" 
       :options="options"
       elementLoadingText="加载中..."
@@ -9,6 +11,13 @@
       element-loading-svg-view-box="-10, -10, 50, 50"
       isEditRow
       v-model:editRowIndex="editRowIndex"
+      @confirm="confirm"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      pagination
+      :total="total"
+      :currentPage="current"
+      :pageSize="pageSize"
     >
       <template #date="{ scope }">
         <el-icon-timer></el-icon-timer>
@@ -43,8 +52,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref } from 'vue';
 import { TableOptions } from '../../components/table/src/types';
+import axios from 'axios'
 
 let options: TableOptions[] = [
   {
@@ -77,30 +87,30 @@ let options: TableOptions[] = [
 
 const tableData = ref<any[]>([])
 let editRowIndex = ref<string>('')
-setTimeout(() => {
-  tableData.value = [
-    {
-      date: '2016-05-03',
-      name: 'Tom1',
-      address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-      date: '2016-05-02',
-      name: 'Tom2',
-      address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-      date: '2016-05-04',
-      name: 'Tom3',
-      address: 'No. 189, Grove St, Los Angeles',
-    },
-    {
-      date: '2016-05-01',
-      name: 'Tom4',
-      address: 'No. 189, Grove St, Los Angeles',
-    },
-  ]
-}, 500)
+// setTimeout(() => {
+//   tableData.value = [
+//     {
+//       date: '2016-05-03',
+//       name: 'Tom1',
+//       address: 'No. 189, Grove St, Los Angeles',
+//     },
+//     {
+//       date: '2016-05-02',
+//       name: 'Tom2',
+//       address: 'No. 189, Grove St, Los Angeles',
+//     },
+//     {
+//       date: '2016-05-04',
+//       name: 'Tom3',
+//       address: 'No. 189, Grove St, Los Angeles',
+//     },
+//     {
+//       date: '2016-05-01',
+//       name: 'Tom4',
+//       address: 'No. 189, Grove St, Los Angeles',
+//     },
+//   ]
+// }, 500)
 let svg = `
   <path class="path" d="
     M 30 15
@@ -111,6 +121,34 @@ let svg = `
     L 15 15
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
 `
+let current = ref<number>(1)
+let pageSize = ref<number>(10)
+let total = ref<number>(0)
+
+let getData = () => {
+  axios.post('/api/list', {
+    current: current.value,
+    pageSize: pageSize.value,
+  }).then((res: any) => {
+    if (res.data.code === '200') {
+      tableData.value = res.data.data.rows
+      total.value = res.data.data.total
+      console.log(res.data.data)
+    }
+  })
+}
+onMounted(() => {
+  getData()
+})
+
+let handleSizeChange = (val: number) => {
+  pageSize.value = val
+  getData()
+}
+let handleCurrentChange = (val: number) => {
+  current.value = val
+  getData()
+}
 
 let sure = (scope: any) => {
   console.log(scope)
@@ -119,6 +157,9 @@ let sure = (scope: any) => {
 let edit = (scope: any) => {
   // console.log(scope)
   editRowIndex.value = 'edit'
+}
+let confirm = (scope: any) => {
+  // console.log(scope)
 }
 </script>
 
