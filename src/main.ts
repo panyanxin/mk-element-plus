@@ -6,12 +6,12 @@ import 'element-plus/dist/index.css'
 import * as Icons from "@element-plus/icons-vue"
 import { toLine } from './utils'
 // import mUI from './components'
-import mUI from '../lib/pyx-element-comp.es'
+// import mUI from '../lib/pyx-element-comp.es'
+import mUI from '../lib/index.es'
 import './../lib/style.css'
 import './mock'
 
 const app = createApp(App)
-app.use(router)
 
 // 全局注册图标 牺牲一点性能
 // el-icon-xxx
@@ -21,6 +21,12 @@ for (let i in Icons) {
   app.component(`el-icon-${toLine(i)}`, (Icons as any)[i])
 }
 
-app.use(ElementPlus).use(mUI)
+// 单个引入
+// import chooseIcon from '../lib/chooseIcon/index.es'
+// import '../lib/chooseIcon/style.css'
+app.use(router)
+   .use(ElementPlus)
+  //  .use(chooseIcon)
+   .use(mUI)
 
 app.mount('#app')
