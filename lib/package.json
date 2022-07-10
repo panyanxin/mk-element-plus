@@ -1,0 +1,16 @@
+{
+  "name": "pyx-element-comp",
+  "version": "1.0.0",
+  "main": "index.umd.js",
+  "module": "index.es.js",
+  "types": "index.d.ts",
+  "author": {
+    "name": "pyx"
+  },
+  "keywords": [
+    "element-plus",
+    "ts",
+    "封装组件",
+    "vue-components"
+  ]
+}
