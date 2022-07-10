@@ -7,6 +7,7 @@
     :element-loading-background="elementLoadingBackground"
     :element-loading-svg="elementLoadingSvg"
     :element-loading-svg-view-box="elementLoadingSvgViewBox"
+    @row-click="rowClick"
   >
     <template 
       v-for="(item, index) in tableOption" 
@@ -19,27 +20,32 @@
         :align="item.align"
       >
         <template #default="scope">
-          <template v-if="(scope.$index + scope.column.id) === currentEdit">
-            <div style="display: flex">
-              <el-input size="small" v-model="scope.row[item.prop!]"></el-input>
-              <div>
-                <slot name="cellEdit" v-if="$slots.cellEdit" :scope="scope"></slot>
-                <div class="action-icon" v-else>
-                  <el-icon-check class="check" @click.stop="check(scope)"></el-icon-check>
-                  <el-icon-close class="close" @click.stop="close(scope)"></el-icon-close>
-                </div>
-              </div>
-            </div>
+          <template v-if="scope.row.rowEdit">
+            <el-input size="small" v-model="scope.row[item.prop!]"></el-input>
           </template>
           <template v-else>
-            <slot v-if="item.slot" :name="item.slot" :scope="scope"></slot>
-            <span v-else>{{ scope.row[item.prop!] }}</span>
-            <component
-              :is="`el-icon-${toLine(editIcon)}`"
-              class="edit"
-              v-if="item.editable"
-              @click.stop="clickEditIcon(scope)"
-            ></component>
+            <template v-if="(scope.$index + scope.column.id) === currentEdit">
+              <div style="display: flex">
+                <el-input size="small" v-model="scope.row[item.prop!]"></el-input>
+                <div>
+                  <slot name="cellEdit" v-if="$slots.cellEdit" :scope="scope"></slot>
+                  <div class="action-icon" v-else>
+                    <el-icon-check class="check" @click.stop="check(scope)"></el-icon-check>
+                    <el-icon-close class="close" @click.stop="close(scope)"></el-icon-close>
+                  </div>
+                </div>
+              </div>
+            </template>
+            <template v-else>
+              <slot v-if="item.slot" :name="item.slot" :scope="scope"></slot>
+              <span v-else>{{ scope.row[item.prop!] }}</span>
+              <component
+                :is="`el-icon-${toLine(editIcon)}`"
+                class="edit"
+                v-if="item.editable"
+                @click.stop="clickEditIcon(scope)"
+              ></component>
+            </template>
           </template>
         </template>
       </el-table-column>
@@ -50,17 +56,18 @@
       :align="actionOption!.align"
     >
       <template #default="scope">
-      <!-- v-else -->
-        <slot name="action" :scope="scope" ></slot>
+        <slot name="editRow" :scope="scope" v-if="scope.row.rowEdit"></slot>
+        <slot name="action" :scope="scope" v-else></slot>
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <script setup lang="ts">
-import { computed, PropType, ref } from 'vue';
+import { computed, onMounted, PropType, ref, watch } from 'vue';
 import { TableOptions } from './types';
 import { toLine } from '../../../utils'
+import cloneDeep from 'lodash/cloneDeep'
 
 const props = defineProps({
   // 表格配置选项
@@ -98,6 +105,16 @@ const props = defineProps({
     type: String,
     default: 'Edit'
   },
+  // 是否可以编辑行
+  isEditRow: {
+    type: Boolean,
+    default: false
+  },
+  // 编辑行按钮的标识
+  editRowIndex: {
+    type: String,
+    default: ''
+  },
 })
 
 let emits = defineEmits(['confirm', 'cancel', 'update:editRowIndex', 'size-change', 'current-change'])
@@ -111,6 +128,51 @@ let isLoading = computed(() => !props.data || !props.data.length)
 
 // 当前被点击的单元格的标识
 let currentEdit = ref<string>('')
+// 拷贝一份表格的数据
+let tableData = ref<any[]>(cloneDeep(props.data))
+// 拷贝一份按钮的标识
+let cloneEditRowIndex = ref<string>(props.editRowIndex)
+// 监听的标识
+let watchData = ref<boolean>(false)
+
+// 如果data的数据变了 要重新给tableData赋值
+// 只需要监听一次就可以了
+let stopWatchData =  watch(() => props.data, val => {
+  watchData.value = true
+  tableData.value = val
+  tableData.value.map(item => {
+    item.rowEdit = false
+  })
+  if (watchData.value) stopWatchData()
+}, { deep: true })
+
+// 监听
+watch(() => props.editRowIndex, val => {
+  if (val) cloneEditRowIndex.value = val
+})
+
+onMounted(() => {
+  tableData.value.map(item => {
+    item.rowEdit = false
+  })
+})
+
+// 点击行的事件
+let rowClick = (row: any, column: any) => {
+  // 判断是否是点击的操作项
+  if (column.label === actionOption.value!.label) {
+    if (props.isEditRow && cloneEditRowIndex.value === props.editRowIndex) {
+      // 编辑行的操作
+      row.rowEdit = !row.rowEdit
+      // 重置其他数据的rowEdit
+      tableData.value.map(item => {
+        if (item !== row) item.rowEdit = false
+      })
+      // 重置按钮的标识
+      if (!row.rowEdit) emits('update:editRowIndex', '')
+    }
+  }
+}
 
 // 点击编辑图标
 let clickEditIcon = (scope: any) => {
@@ -131,6 +193,7 @@ let close = (scope: any) => {
   emits('cancel', scope)
   currentEdit.value = ''
 }
+
 </script>
 
 <style lang='scss' scoped>

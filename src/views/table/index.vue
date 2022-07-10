@@ -7,6 +7,8 @@
       elementLoadingBackground="rgba(0,0,0,.8)"
       :element-loading-svg="svg"
       element-loading-svg-view-box="-10, -10, 50, 50"
+      isEditRow
+      v-model:editRowIndex="editRowIndex"
     >
       <template #date="{ scope }">
         <el-icon-timer></el-icon-timer>
@@ -28,6 +30,10 @@
       <!-- <template #cellEdit="{ scope }">
         <el-button size="small" type="primary">确认</el-button>
       </template> -->
+      <template #editRow="scope">
+        <el-button size="small" type="primary" @click="sure(scope.scope)">确认</el-button>
+        <el-button size="small" type="danger">取消</el-button>
+      </template>
       <template #action="scope">
         <el-button size="small" type="primary" @click="edit(scope.scope)">编辑</el-button>
         <el-button size="small" type="danger">删除</el-button>
@@ -70,6 +76,7 @@ let options: TableOptions[] = [
 ]
 
 const tableData = ref<any[]>([])
+let editRowIndex = ref<string>('')
 setTimeout(() => {
   tableData.value = [
     {
@@ -104,9 +111,14 @@ let svg = `
     L 15 15
   " style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"/>
 `
-let edit = (scope: any) => {
+
+let sure = (scope: any) => {
   console.log(scope)
-  // editRowIndex.value = 'edit'
+}
+
+let edit = (scope: any) => {
+  // console.log(scope)
+  editRowIndex.value = 'edit'
 }
 </script>
 
