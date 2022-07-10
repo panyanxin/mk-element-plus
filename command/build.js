@@ -34,8 +34,10 @@ const buildAll = async () => {
       rollupOptions,
       lib: {
         entry: path.resolve(entryDir, 'index.ts'),
+        // name: 'pyx-element-comp',
+        // fileName: 'pyx-element-comp',
         name: 'pyx-element-comp',
-        fileName: 'pyx-element-comp',
+        fileName: 'index',
         formats: ['es', 'umd']
       },
       outDir: outputDir
@@ -84,6 +86,7 @@ const buildLib = async () => {
 
   // 获取组件名称组成的数组
   const components = fs.readdirSync(entryDir).filter(name => {
+    if(name == 'utils') return
     const componentDir = path.resolve(entryDir, name)
     const isDir = fs.lstatSync(componentDir).isDirectory()
     return isDir && fs.readdirSync(componentDir).includes('index.ts')
